@@ -40,7 +40,8 @@
 
         if (platform === "twitch") {
           // Para Twitch, o identificador é o nome do canal
-          embedUrl = `https://player.twitch.tv/?channel=${streamId}&parent=${parentSite}&muted=true`;
+          embedUrl = `https://player.twitch.tv/?channel=${streamId}&parent=${parentSite}`;
+       
         } else if (platform === "youtube") {
           // Para YouTube, o identificador é o ID do vídeo
           embedUrl = `https://www.youtube.com/embed/${streamId}?autoplay=1`;
@@ -68,7 +69,7 @@
         wrapper.appendChild(iframe);
         wrapper.appendChild(removeBtn);
         streamsContainer.appendChild(wrapper);
-
+console.log(wrapper)
         // Limpa o campo de entrada
         streamInput.value = "";
       }
