@@ -3,7 +3,7 @@
       const streamInput = document.getElementById("stream-input");
       const platformSelect = document.getElementById("platform-select");
       const streamsContainer = document.getElementById("streams-container");
-
+      const parentSite = "kelvin-cod.github.io";
       function extractStreamId(url, platform) {
         if (platform === "twitch") {
           // Extrai o nome do canal da URL do Twitch
@@ -40,7 +40,7 @@
 
         if (platform === "twitch") {
           // Para Twitch, o identificador é o nome do canal
-          embedUrl = `https://player.twitch.tv/?channel=${streamId}&parent=localhost&muted=true`;
+          embedUrl = `https://player.twitch.tv/?channel=${streamId}&parent=${parentSite}&muted=true`;
         } else if (platform === "youtube") {
           // Para YouTube, o identificador é o ID do vídeo
           embedUrl = `https://www.youtube.com/embed/${streamId}?autoplay=1`;
