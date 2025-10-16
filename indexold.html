@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MultiStream Viewer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        .stream-container {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .stream-controls {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .stream-container:hover .stream-controls {
+            opacity: 1;
+        }
+        .fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1000;
+            background: #0f172a;
+        }
+        #streams-grid {
+            transition: grid-template-columns 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="mb-8 text-center">
+            <h1 class="text-4xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">MultiStream Viewer</h1>
+            <p class="text-gray-400">Assista múltiplas transmissões simultaneamente</p>
+        </header>
+
+        <div class="mb-8 p-6 bg-gray-800 rounded-lg shadow-lg">
+            <h2 class="text-xl font-semibold mb-4">Adicionar Stream</h2>
+            <div class="flex flex-col md:flex-row gap-4">
+                <select id="platform-select" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    <option value="twitch">Twitch</option>
+                    <option value="youtube">YouTube</option>
+                    <option value="other">Outro</option>
+                </select>
+                <input type="text" id="stream-url" placeholder="URL ou ID da Stream" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                <button onclick="addStream()" class="bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg px-6 py-2 transition-colors flex items-center gap-2">
+                    <i data-feather="plus"></i> Adicionar
+                </button>
+            </div>
+        </div>
+
+        <div id="streams-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Streams serão adicionadas aqui dinamicamente -->
+        </div>
+
+        <div class="mt-8 text-center text-gray-500 text-sm">
+            <p>Arraste para reorganizar os streams. Passe o mouse sobre um stream para ver os controles.</p>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+    <script>
+        feather.replace();
+        AOS.init();
+
+        // Inicializa o arrastar e soltar
+        document.addEventListener('DOMContentLoaded', function() {
+            new Sortable(document.getElementById('streams-grid'), {
+                animation: 150,
+                ghostClass: 'bg-gray-800'
+            });
+        });
+
+        function addStream() {
+            const platform = document.getElementById('platform-select').value;
+            const url = document.getElementById('stream-url').value.trim();
+            
+            if (!url) {
+                alert('Por favor, insira uma URL ou ID da stream');
+                return;
+            }
+
+            let embedUrl;
+            let streamId = extractStreamId(url, platform);
+
+            if (platform === 'twitch') {
+                embedUrl = `https://player.twitch.tv/?channel=${streamId}&parent=${window.location.hostname}&autoplay=true`;
+            } else if (platform === 'youtube') {
+                embedUrl = `https://www.youtube.com/embed/${streamId}?autoplay=1`;
+            } else {
+                // Para outros serviços, tentamos usar a URL diretamente
+                embedUrl = url.includes('http') ? url : `https://${url}`;
+            }
+
+            const streamContainer = document.createElement('div');
+            streamContainer.className = 'stream-container bg-gray-800 rounded-lg overflow-hidden shadow-lg relative';
+            streamContainer.innerHTML = `
+                <div class="aspect-w-16 aspect-h-9 w-full">
+                    <iframe src="${embedUrl}" frameborder="0" allowfullscreen class="w-full h-full"></iframe>
+                </div>
+                <div class="stream-controls absolute top-2 right-2 flex gap-2">
+                    <button onclick="resizeStream(this.parentElement.parentElement, 'increase')" class="bg-gray-700 hover:bg-gray-600 p-2 rounded-full">
+                        <i data-feather="plus" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="resizeStream(this.parentElement.parentElement, 'decrease')" class="bg-gray-700 hover:bg-gray-600 p-2 rounded-full">
+                        <i data-feather="minus" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="toggleFullscreen(this.parentElement.parentElement)" class="bg-gray-700 hover:bg-gray-600 p-2 rounded-full">
+                        <i data-feather="maximize-2" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="removeStream(this.parentElement.parentElement)" class="bg-red-600 hover:bg-red-700 p-2 rounded-full">
+                        <i data-feather="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('streams-grid').appendChild(streamContainer);
+            feather.replace();
+            document.getElementById('stream-url').value = '';
+        }
+
+        function extractStreamId(url, platform) {
+            if (platform === 'twitch') {
+                // Extrai o nome do canal da URL do Twitch
+                const twitchRegex = /(?:https?:\/\/)?(?:www\.)?twitch\.tv\/([a-zA-Z0-9_]+)/;
+                const match = url.match(twitchRegex);
+                return match ? match[1] : url;
+            } else if (platform === 'youtube') {
+                // Extrai o ID do vídeo do YouTube
+                const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+                const match = url.match(youtubeRegex);
+                return match ? match[1] : url;
+            }
+            return url;
+        }
+
+        function toggleFullscreen(streamElement) {
+            if (streamElement.classList.contains('fullscreen')) {
+                streamElement.classList.remove('fullscreen');
+            } else {
+                streamElement.classList.add('fullscreen');
+            }
+            feather.replace();
+        }
+
+        function removeStream(streamElement) {
+            if (confirm('Tem certeza que deseja remover esta stream?')) {
+                streamElement.remove();
+            }
+        }
+
+        function resizeStream(streamElement, action) {
+            const grid = document.getElementById('streams-grid');
+            const currentCols = window.getComputedStyle(grid).gridTemplateColumns.split(' ').length;
+            
+            if (action === 'increase' && currentCols > 1) {
+                grid.style.gridTemplateColumns = `repeat(${currentCols - 1}, 1fr)`;
+            } else if (action === 'decrease' && currentCols < 4) {
+                grid.style.gridTemplateColumns = `repeat(${currentCols + 1}, 1fr)`;
+            }
+        }
+    </script>
+</body>
+</html>

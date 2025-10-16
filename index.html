@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multistream Dinâmico</title>
+    <link rel="stylesheet" href="./styles/style.css" />
+  </head>
+  <body>
+    <div class="controls">
+      <select id="platform-select">
+        <option value="twitch">Twitch</option>
+        <option value="youtube">YouTube</option>
+        <option value="kick">Kick</option>
+      </select>
+      <input
+        type="text"
+        id="stream-input"
+        placeholder="Nome do canal ou ID do vídeo do YouTube" />
+      <button id="add-stream-btn">Adicionar Stream</button>
+    </div>
+    <div class="streams-container" id="streams-container"></div>
+
+    <script type="text/javascript" src="./js/index.js"></script>
+  </body>
+</html>

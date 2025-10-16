@@ -1,0 +1,65 @@
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background-color: #1a1a1d;
+        color: #f0f0f0;
+      }
+      .controls {
+        background-color: #25252a;
+        padding: 15px;
+        text-align: center;
+        border-bottom: 2px solid #c53030;
+      }
+      .controls input,
+      .controls select,
+      .controls button {
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #444;
+        margin: 5px;
+        background-color: #333;
+        color: white;
+      }
+      .controls button {
+        background-color: #c53030;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      .controls button:hover {
+        background-color: #a02020;
+      }
+      #streams-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(45%, 1fr));
+        gap: 5px;
+        height: calc(100vh - 85px);
+      }
+      .stream-wrapper {
+        position: relative;
+        width: 100%;
+        height: 100%;
+      }
+      .stream-wrapper iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+      .remove-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: rgba(200, 30, 30, 0.8);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        cursor: pointer;
+        font-weight: bold;
+        line-height: 25px;
+        text-align: center;
+        display: none;
+      }
+      .stream-wrapper:hover .remove-btn {
+        display: block;
+      }
