@@ -29,7 +29,7 @@
         background-color: #a02020;
       }
       #streams-container {
-        display: grid;
+        display:inline ;
         grid-template-columns: repeat(auto-fit, minmax(45%, 1fr));
         gap: 5px;
         height: calc(100vh - 85px);
@@ -63,3 +63,5 @@
       .stream-wrapper:hover .remove-btn {
         display: block;
       }
+
+  
